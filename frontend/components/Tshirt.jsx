@@ -755,7 +755,7 @@ const Tshirt = () => {
                 </div>
                 <div>
                     <Modal title="Basic Modal" open={showPop} onOk={handleSaveDuplicate} onCancel={handleCancel}>
-                        <p>Do you want to save the recent data?</p>
+                        <p>Duplicate Data exists. Do you want to save the recent data?</p>
                     </Modal>
                 </div>
             </div>
