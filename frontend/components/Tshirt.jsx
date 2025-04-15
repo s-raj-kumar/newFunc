@@ -32,41 +32,6 @@ const Tshirt = () => {
     const [loading, setLoading] = useState(false);
     const [file, setFile] = useState(null);
 
-    const handelInscopeData = () => {
-        if (inscopeData.length > 0) {
-            setInscopeData([]);
-            return;
-        }
-        setInscopeData([]);
-        setOutscopeData([]);
-        console.log(masterData)
-        const temp = masterData.filter((obj) => {
-            console.log(obj.scope);
-            return obj.scope && obj.scope.toLowerCase() === 'inscope';
-        });
-        console.log(temp);
-        setInscopeData([]);
-        setOutscopeData([]);
-        setInscopeData(temp);
-    }
-    const handelOutscopeData = () => {
-        if (outscopeData.length > 0) {
-            setOutscopeData([]);
-            return;
-        }
-        setInscopeData([]);
-        setOutscopeData([]);
-        console.log(masterData)
-        const temp = masterData.filter((obj) => {
-            console.log(obj.scope);
-            return obj.scope && obj.scope.toLowerCase() === 'outscope';
-        });
-        console.log(temp);
-        setInscopeData([]);
-        setOutscopeData([]);
-        setOutscopeData(temp);
-    }
-
     const handleDelete = (project, skill) => {
         console.log(project, skill);
         const newData = masterData.filter((item) => item.Project !== project || item.Skill !== skill);
@@ -235,6 +200,8 @@ const Tshirt = () => {
             console.log(response.data)
             if (response.data === 1) {
                 setShowPop(true);
+            } else {
+                handleSave();
             }
 
         } catch (error) {
@@ -290,11 +257,6 @@ const Tshirt = () => {
         newData[index][field] = value;
         // alert();
         setMasterData(newData);
-    };
-
-    const handleScopeChange = (index, scope) => {
-        console.log(scope);
-
     };
 
     const handleSelectChange = async (index, field, value) => {
@@ -467,7 +429,7 @@ const Tshirt = () => {
 
     };
 
-    const handleTableChange = (value) => {
+    const handleTableChange =  async (value) => {
         setSelectedTable(value);
         console.log(value);
         try {
@@ -740,6 +702,7 @@ const Tshirt = () => {
                 <div style={{ maxHeight: '490px', width: '100%' }} className='tableDiv' ref={tableRef}>
 
                     {console.log(masterData)}
+                    {console.log(searchData)}
                     {searchData.length !== 0 && <Table columns={columns} dataSource={searchData} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
                         scroll={{ y: `calc(100vh - 250px)` }} />}
                     {searchData.length === 0 && <Table columns={columns} dataSource={masterData} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
