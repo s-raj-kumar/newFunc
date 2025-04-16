@@ -134,26 +134,28 @@ class GetTable(APIView):
         print(serializer.data)
         return Response(serializer.data)
     
+
 class GetTableData(APIView):
     def get(self, request, tableName):
         try:
             print(tableName)
             with connection.cursor() as cursor:
-                sql = f"SELECT * FROM {tableName}"
+                sql = f"SELECT *, ROW_NUMBER() OVER () as id FROM {tableName}"
                 cursor.execute(sql)
-    
+
                 columns = [col[0] for col in cursor.description] #get the column names dynamically
-    
+
                 rows = cursor.fetchall()
                 table_data = [dict(zip(columns, row)) for row in rows] #convert rows into list of dictionaries with column names as keys
-    
+
             return JsonResponse(table_data, safe=False)
-    
+
         except Exception as e:
             print(f"Error fetching data: {e}")
             return JsonResponse({"error": str(e)}, status=500)
         return Response()
-    
+
+
 @api_view(['POST'])
 def table_data_save(request,tableName):
     df = pd.DataFrame(request.data)

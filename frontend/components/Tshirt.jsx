@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Input, Table, Select, Button, Space, Modal, Popconfirm } from "antd";
+import { Input, Table, Select, Button, Space, Modal, Popconfirm, Checkbox } from "antd";
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { SearchOutlined, HomeOutlined, MinusCircleTwoTone } from '@ant-design/icons';
@@ -8,15 +8,25 @@ import { useNavigate } from 'react-router-dom';
 import { useFormik } from "formik";
 import * as yup from 'yup';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+import { IoAddCircleSharp } from "react-icons/io5";
+import { LuSaveAll } from "react-icons/lu";
+import { FaDownload } from "react-icons/fa6";
+import { MdDelete } from "react-icons/md";
+import { IoIosHome } from "react-icons/io";
+import {EditableField} from './EditableCell';
+import { Tooltip } from 'antd';
+import { EditableSelect } from './EditableCell';
+ 
 // import $ from 'jquery';
 const { Option } = Select;
 
-const Tshirt = () => {
-    // message.success('dsfa')
 
+const Tshirt = () => {
     const navigate = useNavigate();
     const [masterData, setMasterData] = useState([]);
     const [tempData, setTempData] = useState([]);
+    const [allData, setAllData] = useState([]);
     const [tempmasterData, setTempMasterData] = useState([]);
     const [messageApi, contextHolder] = message.useMessage();
     const [load, setLoad] = useState(false);
@@ -32,6 +42,33 @@ const Tshirt = () => {
     const [showPop, setShowPop] = useState(false);
     const [loading, setLoading] = useState(false);
     const [file, setFile] = useState(null);
+    
+    const [uniqId, setUniqId] = useState(1000000000000);
+
+    useEffect(() => {
+        //
+        setSelectedTable(tableName);
+        try {
+            // alert();
+            setMasterData([]);
+            setAllData([]);
+            axios.get('http://127.0.0.1:8000/table_get/').then(res => {
+                console.log('response recieved successfully');
+                console.log(res);
+                setTables(res.data);
+                console.log(tables);
+
+            }).catch(err => {
+                console.log(err);
+
+            })
+        } catch (err) {
+            console.log(err);
+
+        };
+        handleTableChange(tableName);
+
+    }, []);
 
     useEffect(()=>{
         setTempData(masterData);
@@ -72,9 +109,9 @@ const Tshirt = () => {
         setOutscopeData(temp);
     }
 
-    const handleDelete = (project, skill) => {
-        console.log(project, skill);
-        const newData = masterData.filter((item) => item.Project !== project || item.Skill !== skill);
+    const handleDelete = (id) => {
+        console.log(id);
+        const newData = masterData.filter((item) => item.id !== id);
         setMasterData(newData);
         // setMasterData([]);
         // setTimeout(() => {
@@ -89,7 +126,7 @@ const Tshirt = () => {
             render: (_, record) =>
                 masterData.length >= 1 ? (
                     <Popconfirm title="Sure to delete?"
-                        onConfirm={() => handleDelete(record.Project, record.Skill)}
+                        onConfirm={() => handleDelete(record.id)}
                     >
                         <MinusCircleTwoTone />
                     </Popconfirm>
@@ -101,9 +138,9 @@ const Tshirt = () => {
             key: 'Project',
             align: 'center',
             render: (text, record, index) => (
-                <Input
-                    defaultValue={text || ''}
-                    onChange={(e) => handleInputChange(index, 'Project', e.target.value)}
+                <EditableField
+                    value={record?.Project}  
+                    onUpdate={(newValue) => handleInputChange(record?.id, 'Project', newValue)}
                 />
             ),
         },
@@ -113,9 +150,9 @@ const Tshirt = () => {
             key: 'AccountManager',
             align: 'center',
             render: (text, record, index) => (
-                <Input
-                    defaultValue={text || ''}
-                    onChange={(e) => handleInputChange(index, 'AccountManager', e.target.value)}
+                <EditableField
+                    value={record?.AccountManager}  
+                    onUpdate={(newValue) => handleInputChange(record?.id, 'AccountManager', newValue)}
                 />
             ),
         },
@@ -125,9 +162,9 @@ const Tshirt = () => {
             key: 'Skill',
             align: 'center',
             render: (text, record, index) => (
-                <Input
-                    defaultValue={text || ''}
-                    onChange={(e) => handleInputChange(index, 'Skill', e.target.value)}
+                <EditableField
+                    value={record?.Skill}  
+                    onUpdate={(newValue) => handleInputChange(record?.id, 'Skill', newValue)}
                 />
             ),
         },
@@ -137,9 +174,9 @@ const Tshirt = () => {
             key: 'Count',
             align: 'center',
             render: (text, record, index) => (
-                <Input
-                    defaultValue={text || ''}
-                    onChange={(e) => handleInputChange(index, 'Count', e.target.value)}
+                <EditableField
+                    value={record?.Count}  
+                    onUpdate={(newValue) => handleInputChange(record?.id, 'Count', newValue)}
                 />
             ),
         },
@@ -149,9 +186,9 @@ const Tshirt = () => {
             key: 'Date',
             align: 'center',
             render: (text, record, index) => (
-                <Input
-                    defaultValue={text || ''}
-                    onChange={(e) => handleInputChange(index, 'Date', e.target.value)}
+                <EditableField
+                    value={record?.Date}  
+                    onUpdate={(newValue) => handleInputChange(record?.id, 'Date', newValue)}
                 />
             ),
         },
@@ -161,9 +198,9 @@ const Tshirt = () => {
             key: 'Status',
             align: 'center',
             render: (text, record, index) => (
-                <Input
-                    defaultValue={text || ''}
-                    onChange={(e) => handleInputChange(index, 'Status', e.target.value)}
+                <EditableField
+                    value={record?.Status}  
+                    onUpdate={(newValue) => handleInputChange(record?.id, 'Status', newValue)}
                 />
             ),
         },
@@ -173,9 +210,9 @@ const Tshirt = () => {
             key: 'Comments',
             align: 'center',
             render: (text, record, index) => (
-                <Input
-                    defaultValue={text || ''}
-                    onChange={(e) => handleInputChange(index, 'Comments', e.target.value)}
+                <EditableField
+                    value={record?.Comments}  
+                    onUpdate={(newValue) => handleInputChange(record?.id, 'Comments', newValue)}
                 />
             ),
         },
@@ -186,9 +223,9 @@ const Tshirt = () => {
             key: 'PendingAction',
             align: 'center',
             render: (text, record, index) => (
-                <Input
-                    defaultValue={text || ''}
-                    onChange={(e) => handleInputChange(index, 'PendingAction', e.target.value)}
+                <EditableField
+                    value={record?.PendingAction}  
+                    onUpdate={(newValue) => handleInputChange(record?.id, 'PendingAction', newValue)}
                 />
             ),
         },
@@ -294,13 +331,38 @@ const Tshirt = () => {
 
 
 
-    const handleInputChange = (index, field, value) => {
-        const newData = [...masterData];
-        newData[index][field] = value;
-        // alert();
-        setMasterData(newData);
-    };
+    // const handleInputChange = (index, field, value) => {
+    //     const newData = [...masterData];
+    //     console.log(index, " ", field," ", value);
+    //     console.log(newData);
+        
 
+    //     console.log(' changed value '), value;
+        
+    //     console.log(newData[index]);        
+    //     newData[index][field] = value;
+    //     // alert();
+    //     setMasterData(newData);
+    // };
+    const handleInputChange = (id, field, value) => {
+        setAllData(prevAllData => {
+            return prevAllData.map(item => {
+                if (item.id === id) {
+                    return { ...item, [field]: value };
+                }
+                return item;
+            });
+        });
+   
+        setMasterData(prevMasterData => {
+            return prevMasterData.map(item => {
+                if (item.id === id) {
+                    return { ...item, [field]: value };
+                }
+                return item;
+            });
+        });
+    };
     const handleScopeChange = (index, scope) => {
         console.log(scope);
 
@@ -428,35 +490,15 @@ const Tshirt = () => {
     };
 
 
-    useEffect(() => {
-        //
-        setSelectedTable(tableName);
-        try {
-            // alert();
-            setMasterData([]);
-            axios.get('http://127.0.0.1:8000/table_get/').then(res => {
-                console.log('response recieved successfully');
-                console.log(res);
-                setTables(res.data);
-                console.log(tables);
-
-            }).catch(err => {
-                console.log(err);
-
-            })
-        } catch (err) {
-            console.log(err);
-
-        };
-        handleTableChange(tableName);
-
-    }, []);
     console.log(tables);
     const addRow = () => {
         // alert('hi');
-        setTempMasterData(masterData)
-
+        
+        // alert('hi');
+        setTempMasterData(masterData)      
+ 
         let updatedData = [{
+            "id": uniqId,
             "Project": "",
             "AccountManager": "",
             "Skill": '',
@@ -467,12 +509,12 @@ const Tshirt = () => {
             "PendingAction": ''
         }, ...masterData]
         console.log(updatedData)
-        // setMasterData([]);
-        // setTimeout(() => {
-        //     setMasterData(updatedData);
-        // }, 100);
+        setMasterData([]);
+        setAllData([]);
         setMasterData(updatedData);
-        console.log(masterData);
+        setAllData(updatedData);
+        setUniqId(uniqId+1);
+        message.success("added row successfully", 1);
         // smoothScroll()  
 
     };
@@ -513,8 +555,20 @@ const Tshirt = () => {
 
     };
     const handleSearchChange = (e) => {
-        setSearchText(e.target.value);
-        setSearchData([]);
+        const newValue = e.target.value;
+        setSearchText(newValue);
+   
+        let filteredData = masterData; // Start with the full masterData
+
+        if (newValue) {
+            filteredData = filteredData.filter(obj =>
+                obj.object.toLowerCase().includes(newValue.toLowerCase())
+            );
+        }
+        console.log(filteredData);
+        
+        setAllData(filteredData);
+       
     };
     const handleSearch = (e) => {
         console.log('handel search');
@@ -539,14 +593,6 @@ const Tshirt = () => {
     const homeClick = () => {
         navigate(`/newProject/home/`);
     }
-    useEffect(() => {
-        if (tableRef.current) {
-            tableRef.current.scrollTop = tableRef.current.scrollHeight; // Instant scroll
-            //OR
-            // tableRef.current.scrollIntoView({ behavior: 'smooth' }); // Smooth scroll
-        }
-    }, [masterData, searchData, inscopeData, outscopeData]); // Correct dependency array
-
 
     const schema = yup.object().shape({
         tableName: yup.string()
