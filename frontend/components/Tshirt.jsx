@@ -16,6 +16,7 @@ const Tshirt = () => {
 
     const navigate = useNavigate();
     const [masterData, setMasterData] = useState([]);
+    const [tempData, setTempData] = useState([]);
     const [tempmasterData, setTempMasterData] = useState([]);
     const [messageApi, contextHolder] = message.useMessage();
     const [load, setLoad] = useState(false);
@@ -32,14 +33,53 @@ const Tshirt = () => {
     const [loading, setLoading] = useState(false);
     const [file, setFile] = useState(null);
 
+    useEffect(()=>{
+        setTempData(masterData);
+    },[masterData]);
+
+    const handelInscopeData = () => {
+        if (inscopeData.length > 0) {
+            setInscopeData([]);
+            return;
+        }
+        setInscopeData([]);
+        setOutscopeData([]);
+        console.log(masterData)
+        const temp = masterData.filter((obj) => {
+            console.log(obj.scope);
+            return obj.scope && obj.scope.toLowerCase() === 'inscope';
+        });
+        console.log(temp);
+        setInscopeData([]);
+        setOutscopeData([]);
+        setInscopeData(temp);
+    }
+    const handelOutscopeData = () => {
+        if (outscopeData.length > 0) {
+            setOutscopeData([]);
+            return;
+        }
+        setInscopeData([]);
+        setOutscopeData([]);
+        console.log(masterData)
+        const temp = masterData.filter((obj) => {
+            console.log(obj.scope);
+            return obj.scope && obj.scope.toLowerCase() === 'outscope';
+        });
+        console.log(temp);
+        setInscopeData([]);
+        setOutscopeData([]);
+        setOutscopeData(temp);
+    }
+
     const handleDelete = (project, skill) => {
         console.log(project, skill);
         const newData = masterData.filter((item) => item.Project !== project || item.Skill !== skill);
-        // setMasterData(newData);
-        setMasterData([]);
-        setTimeout(() => {
-            setMasterData(newData);
-        }, 10);
+        setMasterData(newData);
+        // setMasterData([]);
+        // setTimeout(() => {
+        //     setMasterData(newData);
+        // }, 10);
     };
 
     const columns = [
@@ -179,9 +219,11 @@ const Tshirt = () => {
                     });
                     console.log(finalTemp);
                     setMasterData([]);
-                    setTimeout(() => {
-                        setMasterData(finalTemp);
-                    }, 10);
+                    // setTimeout(() => {
+                    //     setMasterData(finalTemp);
+                    // }, 10);
+                    setMasterData(finalTemp);
+
                     console.log(res);
                 })
                 .catch((err) => {
@@ -201,7 +243,7 @@ const Tshirt = () => {
             if (response.data === 1) {
                 setShowPop(true);
             } else {
-                handleSave();
+                handleSave()
             }
 
         } catch (error) {
@@ -257,6 +299,11 @@ const Tshirt = () => {
         newData[index][field] = value;
         // alert();
         setMasterData(newData);
+    };
+
+    const handleScopeChange = (index, scope) => {
+        console.log(scope);
+
     };
 
     const handleSelectChange = async (index, field, value) => {
@@ -420,34 +467,40 @@ const Tshirt = () => {
             "PendingAction": ''
         }, ...masterData]
         console.log(updatedData)
-        setMasterData([]);
-        setTimeout(() => {
-            setMasterData(updatedData);
-        }, 100);
+        // setMasterData([]);
+        // setTimeout(() => {
+        //     setMasterData(updatedData);
+        // }, 100);
+        setMasterData(updatedData);
         console.log(masterData);
         // smoothScroll()  
 
     };
 
-    const handleTableChange =  async (value) => {
+    const handleTableChange = (value) => {
         setSelectedTable(value);
         console.log(value);
         try {
             // fetching project specific data
             axios.get(`http://127.0.0.1:8000/table_data_get/${value}/`)
                 .then((res) => {
-                    setSearchData([]);
+                    // setSearchData([]);
                     let temp = res.data;
                     console.log(temp);
-                    let finalTemp = [];
-                    temp.forEach(element => {
-                        // if (element?.scope.toLowerCase() === 'inscope') {
-                        finalTemp.push(element);
-                        
-                    });
-                    console.log(finalTemp);
+                    // setMasterData([]);
+                    setMasterData([]);
+                    setTimeout(() => {
+                        setMasterData(temp);
+                    }, 2);
+                    // setMasterData([]); 
+                    // let finalTemp = [];
+                    // temp.forEach(element => {
+                    //     // if (element?.scope.toLowerCase() === 'inscope') {
+                    //     finalTemp.push(element);
+                    // });
+                    // console.log(finalTemp);
 
-                    setMasterData(finalTemp);
+                    // setMasterData(finalTemp);
                     console.log(res);
                 })
                 .catch((err) => {
@@ -530,8 +583,8 @@ const Tshirt = () => {
                 }
             });
 
-            setTimeout(() => {
-            }, 1000);
+            // setTimeout(() => {
+            // }, 1000);
             setFile();
             formik.resetForm();
             console.log(file);
@@ -667,7 +720,7 @@ const Tshirt = () => {
                     <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', borderRadius: '25px', marginBottom: '10px', overflow: 'hidden' }}>
                         <Input
                             type="text"
-                            placeholder="Search Objects"
+                            placeholder="Search Projects"
                             value={searchText}
                             onChange={handleSearchChange}
                             onPressEnter={handleSearch}
@@ -700,13 +753,14 @@ const Tshirt = () => {
 
                 </div>
                 <div style={{ maxHeight: '490px', width: '100%' }} className='tableDiv' ref={tableRef}>
-
+                {/* <Table columns={columns} dataSource={tempData.map(item => ({ ...item}))} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
+                        scroll={{ y: `calc(100vh - 250px)` }} /> */}
                     {console.log(masterData)}
-                    {console.log(searchData)}
-                    {searchData.length !== 0 && <Table columns={columns} dataSource={searchData} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
+                    {searchData.length !== 0 && <Table columns={columns} dataSource={searchData.map(item => ({ ...item}))} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
                         scroll={{ y: `calc(100vh - 250px)` }} />}
-                    {searchData.length === 0 && <Table columns={columns} dataSource={masterData} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
+                    {searchData.length === 0 && <Table columns={columns} dataSource={tempData.map(item => ({ ...item}))} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
                         scroll={{ y: `calc(100vh - 250px)` }} />}
+                    
                     {/* {searchData.length === 0 && inscopeData.length > 0 ? <Table columns={columns} dataSource={inscopeData} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
                     scroll={{ y: `calc(100vh - 250px)` }} /> : ''}
                 {searchData.length === 0 && outscopeData.length > 0 ? <Table columns={columns} dataSource={outscopeData} pagination={false} loading={loading} style={{ tableLayout: 'fixed', height: "100%" }}
